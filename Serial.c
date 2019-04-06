@@ -7,7 +7,7 @@ bool UsedInRow(int grid[N][N], int row, int num)
 { 
 	for (int col = 0; col < N; col++) 
 		if (grid[row][col] == num) 
-			return true; 
+			return true 
 	return false; 
 } 
 
