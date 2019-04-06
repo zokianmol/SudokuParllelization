@@ -59,10 +59,13 @@ void main()
 	int grid_f[N][N][N+1];// grid[pos][pos][possibilities]
 
 	//setting for all cells' possibilities to have all numbers
-	for (int row = 0; row < count; row++)
-		for(int col=0;col<N;col++)
-			for(int depth=1;depth<N+1;depth++)grid_f[row][col][depth]=1;
+	for (int row = 0; row < count; row++){
+		for(int col=0;col<N;col++){
+			grid_f[row][col][0]=grid[row][col];
+			for(int depth=1;depth<N+1;depth++){grid_f[row][col][depth]=1;}
 
+		}
+	}
 
 
 
