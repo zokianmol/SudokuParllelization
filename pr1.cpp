@@ -35,8 +35,15 @@ int grid[N][N] =     {{0,15,0,1,0,2,10,14,12,0,0,0,0,0,0,0},
                       {0,14,0,0,0,13,9,0,4,12,11,8,0,0,2,0}};
 
 
-vector<vector<vector<bool>>> po(N,vector<vector<bool>>(N,vector<bool>(N,1)));
-
+//vector<vector<vector<bool>>> po(N,vector<vector<bool>>(N,vector<bool>(N,1)));
+int po[N][N][N];
+for(int r=0;r<N;r++){
+	for(int c=0;c<N;c++){
+		for(int d=0;d<N;d++){
+			po[r][c][d]=1;
+		}
+	}
+}
 for(int r=0;r<N;r++){
 	for(int c=0;c<N;c++){
 		if(grid[r][c]!=0){
@@ -112,7 +119,7 @@ for(int r=0;r<N;r++){                 //elemination
 		}
 	}
 }
-/*for(int k=0;k<N;k++){                 //long ranger
+for(int k=0;k<N;k++){                 //long ranger
 for(int i=0;i<N;i++){
 	int a1=0,a2=0,flg1=0,flg2=0;
 	for(int j=0;j<N;j++){
@@ -120,26 +127,26 @@ for(int i=0;i<N;i++){
 		a2+=po[j][i][k];
 		flg1+=j*po[i][j][k];
 		flg2+=j*po[j][i][k];
-
+	
 	}
 	if(a1==1){
 		grid[i][flg1]=k+1;
-		for(int a=0;a<N;a++){
-			po[i][flg1][a]=0;
+		for(int ex=0;ex<N;ex++){
+			po[i][flg1][ex]=0;
 		}
 		po[i][flg1][k]=1;
 		count++;
 	}
-	if(a1==1){
+	if(a2==1){
 		grid[flg2][i]=k+1;
-		for(int a=0;a<N;a++){
-			po[flg2][i][k]=0;
+		for(int ex=0;ex<N;ex++){
+			po[flg2][i][ex]=0;
 		}
 		po[flg2][i][k]=1;
 		count++;
 	}
 }
-}*/
+}
 }
 
 printGrid(grid); 
