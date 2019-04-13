@@ -16,7 +16,7 @@ void printGrid(int grid[N][N])
 } 
 
 int main(){
-int count=1,old_count=0;
+int count=1,old_count=0,itr=0;
 /*int grid[N][N] =     {{10,22,14,0,0,0,0,13,0,18,0,20,25,0,0,0,21,0,1,0,0,0,0,12,0 },
 {0,0,0,12,0,17,15,1,25,10,0,3,13,0,7,0,0,16,0,0,11,18,24,4,0 },
 {0,0,0,0,0,0,0,0,0,0,24,12,0,0,0,0,0,0,2,0,10,25,6,1,0 },
@@ -61,7 +61,7 @@ int count=1,old_count=0;
 
 
 //vector<vector<vector<bool>>> po(N,vector<vector<bool>>(N,vector<bool>(N,1)));
-int po[N][N][N];
+bool po[N][N][N];
 for(int r=0;r<N;r++){                         //initialization of posibility matrix 
 	for(int c=0;c<N;c++){
 		for(int d=0;d<N;d++){
@@ -80,9 +80,8 @@ for(int r=0;r<N;r++){
 	}
 }
 
-while(old_count!=count){
-old_count=count;
-count=0;
+do{
+count=0;                            //start counting from each iteration
 for(int i=0;i<N;i++){               //row and column check 
 	vector<int> rv;
 	vector<int> cv;
@@ -159,14 +158,14 @@ for(int i=0;i<N;i++){
 	}
 	if(a1==1 && grid[i][flg1]==0){
 		grid[i][flg1]=k+1;
-		for(int ex=0;ex<N;ex++){         //remove posibility after assignment
+		for(int ex=0;ex<N;ex++){         //remove posibility after assignment for row
 			po[i][flg1][ex]=0;
 		}
 		po[i][flg1][k]=1;
 		count++;
 		
 	}
-	if(a2==1 && grid[flg2][i]==0){        //remove posibility after assignment
+	if(a2==1 && grid[flg2][i]==0){        //remove posibility after assignment for column
 		grid[flg2][i]=k+1;
 		for(int ex=0;ex<N;ex++){
 			po[flg2][i][ex]=0;
@@ -176,31 +175,101 @@ for(int i=0;i<N;i++){
 		
 	}
 }
-for(int br=0;br<N;br+=n){                   //box check
+
+for(int br=0;br<N;br+=n){                     //box lone ranger check         
 	for(int bc=0;bc<N;bc+=n){
 		
 		int a1=0,flg1=0,flg2=0;
 		for(int r=0;r<n;r++){
 			for(int c=0;c<n;c++){
 				a1+=po[br+r][bc+c][k];
-				flg1=r*po[br+r][bc+c][k];
-				flg2=c*po[br+r][bc+c][k];
+				flg1+=r*po[br+r][bc+c][k];
+				flg2+=c*po[br+r][bc+c][k];
 			}
+		}
+		if(a1==1 && grid[br+flg1][bc+flg2]==0){
+			count++;
+			grid[br+flg1][bc+flg2]=k;
+			for(int r=0;r<n;r++){
+			for(int c=0;c<n;c++){
+				for(int num=0;num<N;num++){
+					po[br+flg1][bc+flg2][num]=0;
+				}
+				po[br+flg1][bc+flg2][k]=1;
+			}
+		}
 		}
 
 	}
 }
-for(int k=0;k<N;k++){
-for(int r=0;r<N;r++){
-	for int(c=0;c<N;c++){
+}
 
+
+for(int r=0;r<N;r++){                             //find twin from row and column
+	vector<int> flg1,flg2,num1,num2;
+	for(int n1=0;n1<N;n1++){
+		int a1=0;
+		int b1=0;
+		for(int c=0;c<N;c++){
+			a1+=po[r][c][n1];
+			b1+=po[c][r][n1];
+		}
+		if(a1==2){
+		for(int k=0;k<N-1;k++){
+			if(po[r][k][n1]==1){
+				flg1.push_back(k);
+			}
+		}
+		num1.push_back(n1);
+		}
+    	if(b1==2){
+		for(int k=0;k<N-1;k++){
+			if(po[k][r][n1]==1){
+				flg2.push_back(k);
+	    	}
+		}
+		num2.push_back(n1);
+	    }
 	}
+	
+	if(flg1.size()==4){
+	if(flg1[0]==flg1[2] && flg1[1]==flg1[3]){
+	cout<<"twin"<<endl;	
+	for(vector<int>::iterator k=flg1.begin();k!=flg1.end();k++)	{
+	for(int i=0;i<N;i++){
+		po[r][*k][i]=0;
+	}
+    }
+	for(vector<int>::iterator k=flg1.begin();k!=flg1.end();k++){
+    po[r][*k][num1[0]]=1; 
+    po[r][*k][num1[1]]=1; 
+	}
+    }
+    } 
+    if(flg2.size()==4){
+    if(flg2[0]==flg2[2] && flg2[1]==flg2[3]){    
+    cout<<"twin"<<endl;	
+	for(vector<int>::iterator k=flg2.begin();k!=flg2.end();k++)	{
+	for(int i=0;i<N;i++){
+		po[*k][r][i]=0;
+	}
+    }
+	for(vector<int>::iterator k=flg2.begin();k!=flg2.end();k++){
+    po[*k][r][num2[0]]=1; 
+    po[*k][r][num2[1]]=1; 
+	}
+    } 
+    }
+    flg1.clear();
+    flg2.clear();
+    num1.clear();
+    num2.clear();
 }
-} 
-}
+itr++;
+}while(count!=0);
 
 printGrid(grid); 
-cout<<count;
+cout<<count<<" "<<itr;
 
 
 } 
