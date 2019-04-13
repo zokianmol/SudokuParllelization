@@ -341,6 +341,49 @@ for(int br=0;br<N;br+=n){                     //box twin check
 return count;
 }
 
+/*bool triplet(int grid[N][N], bool po[N][N][N])
+{	
+	vector<int> temperory_storage;
+	int flag=0,flag_temp=0;	//flag: incrementing it for number being found in three cells | flag_temp : 0 for not found, 1 for triplet found
+	int counter=0;			//stores the number of cells per row/coloumns/box that contains a particular number
+	temperory_storage.empty();
+	for(int r=0; r<N;r++) //for each row
+	{	for(int k=0;r<N;k++)	//For each Number
+		{	for(int c=0; c<N; c++) counter+=po[r][c][k];	//For each Cell
+			if(counter==3)
+			{	if(temperory_storage.size==NULL)
+				{
+					flag++;
+					for(int c=0; c<N; c++)	temperory_storage.pushback(c);
+				}
+				else
+				{	for(int c=0; c<N; c++)
+					{	if(po[r][c][k]==1)
+						{
+							for(vector<int>::iterator i=temperory_storage.begin(); i<temperory_storage.end(); i++)
+							{
+								if(c!=*i)flag_temp=1;		//if the coloumn number does not exist in before the previous depth values, then flag will turn 1
+							}									
+						}							
+					}
+				}								
+			}
+			counter=0;			
+		}//end of depth			
+		if(flag==3)			//triplet is found
+	}
+return false;
+}	*/
+
+int  *find_list_po(int grid[N][N],bool po[N][N][N]){
+static int c[3];
+for(int r=0;r<N;r++){
+for(int c=0;c<N;c++){
+	
+}
+}
+return c;
+}
 
 
 int main(){
@@ -398,12 +441,11 @@ RemoveConstrain(grid,po);
 count+=elemination(grid,po);         //return 1 if it is done
 count+=loneR(grid,po);
 count+=twin(grid,po);
-
-
-
 itr++;
 }while(count!=0);
 
+vector<vector<int>> num;
+int *minpos=find_list_po(grid,po);
 printGrid(grid);             //passing parameters by address
 
 
