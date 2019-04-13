@@ -2,8 +2,8 @@
 #include <vector>
 #include <omp.h>
 using namespace std;
-#define N 16
-#define n 4
+#define N 25
+#define n 5
 
 void init(int grid[N][N],bool po[N][N][N]){
 	for(int r=0;r<N;r++){                         //initialization of posibility matrix 
@@ -139,7 +139,6 @@ for(int i=0;i<N;i++){
 
 for(int br=0;br<N;br+=n){                     //box lone ranger check         
 	for(int bc=0;bc<N;bc+=n){
-		
 		int a1=0,flg1=0,flg2=0;
 		for(int r=0;r<n;r++){
 			for(int c=0;c<n;c++){
@@ -150,21 +149,22 @@ for(int br=0;br<N;br+=n){                     //box lone ranger check
 		}
 		if(a1==1 && grid[br+flg1][bc+flg2]==0){
 			count=1;
-			grid[br+flg1][bc+flg2]=k;
+			grid[br+flg1][bc+flg2]=k+1;
 			for(int r=0;r<n;r++){
 			for(int c=0;c<n;c++){
 				for(int num=0;num<N;num++){
 					po[br+flg1][bc+flg2][num]=0;
 				}
-				po[br+flg1][bc+flg2][k]=1;
 			}
-		}
+			}
+			po[br+flg1][bc+flg2][k]=1;
 		}
 
 	}
 }
-cout<<"closing LR"<<endl;
 }
+cout<<"closing LR"<<endl;
+
 return count;
 }
 
@@ -375,20 +375,49 @@ return count;
 return false;
 }	*/
 
-int  *find_list_po(int grid[N][N],bool po[N][N][N]){
-static int c[3];
+int  *find_least_po(int grid[N][N],bool po[N][N][N]){              //returns no of posibility , row, col
+static int num[3]={N,0,0};
 for(int r=0;r<N;r++){
 for(int c=0;c<N;c++){
-	
+	int local_sum=0;
+	for(int depth=0;depth<N;depth++){
+		local_sum+=po[r][c][depth];
+	}
+	if(local_sum<num[0] && grid[r][c]==0 ){           //find min sum;
+		num[0]=local_sum;
+		num[1]=r;
+		num[2]=c;
+	}
 }
-}
-return c;
 }
 
+return num;
+}
+
+void TryToSolve(int grid[N][N],bool po[N][N][N]){
+int count=0,itr=0;
+do{
+count=0;                            //start counting from each iteration
+RemoveConstrain(grid,po);
+count+=elemination(grid,po);         //return 1 if it is done
+count+=loneR(grid,po);
+count+=twin(grid,po);
+itr++;
+}while(count!=0);
+cout<<"iterations"<<itr;
+}
 
 int main(){
-int count=1,old_count=0,itr=0;
-/*int grid[N][N] =     {{10,22,14,0,0,0,0,13,0,18,0,20,25,0,0,0,21,0,1,0,0,0,0,12,0 },
+/*int grid[N][N] = {{3, 0, 6, 5, 0, 8, 4, 0, 0}, 
+					{5, 2, 0, 0, 0, 0, 0, 0, 0}, 
+					{0, 8, 7, 0, 0, 0, 0, 3, 1}, 
+					{0, 0, 3, 0, 1, 0, 0, 8, 0}, 
+					{9, 0, 0, 8, 6, 3, 0, 0, 5}, 
+					{0, 5, 0, 0, 9, 0, 6, 0, 0}, 
+					{1, 3, 0, 0, 0, 0, 2, 5, 0}, 
+					{0, 0, 0, 0, 0, 0, 0, 7, 4}, 
+					{0, 0, 5, 2, 0, 6, 3, 0, 0}}; */
+int grid[N][N] =     {{10,22,14,0,0,0,0,13,0,18,0,20,25,0,0,0,21,0,1,0,0,0,0,12,0 },
 {0,0,0,12,0,17,15,1,25,10,0,3,13,0,7,0,0,16,0,0,11,18,24,4,0 },
 {0,0,0,0,0,0,0,0,0,0,24,12,0,0,0,0,0,0,2,0,10,25,6,1,0 },
 {0,0,0,9,0,0,0,23,0,5,0,0,19,0,0,0,0,12,0,0,17,0,20,0,0 },
@@ -412,8 +441,8 @@ int count=1,old_count=0,itr=0;
 {14,20,0,7,22,0,16,5,12,0,0,0,21,23,25,4,0,1,0,0,0,0,3,0,0 },
 {0,1,0,15,0,20,0,0,4,0,8,0,0,0,0,0,0,0,0,16,14,12,17,19,24 },
 {0,0,0,25,0,0,0,0,0,7,0,0,3,0,22,14,0,0,0,0,0,0,10,0,0 },
-{3,0,0,0,5,14,25,15,18,13,0,7,0,17,0,0,20,0,22,0,0,11,0,0,0 }};*/
- int grid[N][N] = {{0,15,0,1,0,2,10,14,12,0,0,0,0,0,0,0},
+{3,0,0,0,5,14,25,15,18,13,0,7,0,17,0,0,20,0,22,0,0,11,0,0,0 }};
+ /*int grid[N][N] = {{0,15,0,1,0,2,10,14,12,0,0,0,0,0,0,0},
                       {0,6,3,16,12,0,8,4,14,15,1,0,2,0,0,0},
                       {14,0,9,7,11,3,15,0,0,0,0,0,0,0,0,0},
                       {4,13,2,12,0,0,0,0,6,0,0,0,0,15,0,0},
@@ -428,25 +457,16 @@ int count=1,old_count=0,itr=0;
                       {12,8,0,0,16,0,0,10,0,13,0,0,0,5,0,0},
                       {5,0,0,0,3,0,4,6,0,1,15,0,0,0,0,0},
                       {0,9,1,6,0,14,0,11,0,0,2,0,0,0,10,8},
-                      {0,14,0,0,0,13,9,0,4,12,11,8,0,0,2,0}};
+                      {0,14,0,0,0,13,9,0,4,12,11,8,0,0,2,0}};*/
 
 
 //vector<vector<vector<bool>>> po(N,vector<vector<bool>>(N,vector<bool>(N,1)));
+printGrid(grid);
 bool po[N][N][N];
 init(grid,po);
 
-do{
-count=0;                            //start counting from each iteration
-RemoveConstrain(grid,po);
-count+=elemination(grid,po);         //return 1 if it is done
-count+=loneR(grid,po);
-count+=twin(grid,po);
-itr++;
-}while(count!=0);
+TryToSolve(grid,po);
 
-vector<vector<int>> num;
-int *minpos=find_list_po(grid,po);
-printGrid(grid);             //passing parameters by address
 
 
 /*int *a=grid[0];                     //pointer stuff
