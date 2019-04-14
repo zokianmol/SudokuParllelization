@@ -96,13 +96,13 @@ bool elemination(int grid[N][N],bool po[N][N][N]){         //eleminitaio	n funct
 		}
 		if(a1==1){
 			count=1;
-			cout<<r<<","<<c<<"ele"<<endl;
+			//cout<<r<<","<<c<<"ele"<<endl;
 			grid[r][c]=flg+1;
 
 		}
 	}
 }
-cout<<"closing elem"<<endl;
+//cout<<"closing elem"<<endl;
 return count;
 }
 
@@ -129,7 +129,7 @@ for(int i=0;i<N;i++){
 	}
 	if(a2==1 && grid[flg2][i]==0){        //remove posibility after assignment for column
 		grid[flg2][i]=k+1;
-		cout<<flg2<<","<<i<<endl;
+		//cout<<flg2<<","<<i<<endl;
 		for(int ex=0;ex<N;ex++){
 			po[flg2][i][ex]=0;
 		}
@@ -165,7 +165,7 @@ for(int br=0;br<N;br+=n){                     //box lone ranger check
 	}
 }
 }
-cout<<"closing LR"<<endl;
+//cout<<"closing LR"<<endl;
 
 return count;
 }
@@ -203,7 +203,7 @@ for(int r=0;r<N;r++){                             //find twin from row and colum
 		for(int c=0;c<N;c++){                    
 			if(po[r][c][*k]==1){
 				flg1.push_back(c);                   //find location of twin 
-				cout<<"twin";
+				//cout<<"twin";
 				count=1;
 			}
 		}
@@ -244,7 +244,7 @@ for(int r=0;r<N;r++){                             //find twin from row and colum
 		for(int c=0;c<N;c++){
 			if(po[c][r][*k]==1){
 				flg2.push_back(c);
-				cout<<"twin";
+				//cout<<"twin";
 				count=1;
 			}
 		}
@@ -312,7 +312,7 @@ for(int br=0;br<N;br+=n){                     //box twin check
 						if(po[br+r][bc+c][*k]==1){
 							flg1.push_back(r);
 							flg2.push_back(c);
-							cout<<"twin"<<endl;
+							//cout<<"twin"<<endl;
 							count=1;
 						}
 					}
@@ -342,7 +342,22 @@ for(int br=0;br<N;br+=n){                     //box twin check
 }
 return count;
 }
+bool final_check(int grid[N][N],bool po[N][N][N]){
+for(int r=0;r<N;r++){                       //find min posibility
+	for(int c=0;c<N;c++){
+		int s;
+		for(int d=0;d<N;d++){
+			s+=po[r][c][d];
 
+		}
+		if(s!=1){
+			cout<<"at"<<r<<","<<c<<"fault"<<endl;
+			return false;
+		}
+	}
+}
+return true;
+}
 /*bool triplet(int grid[N][N], bool po[N][N][N])
 {	
 	vector<int> temperory_storage;
@@ -469,7 +484,11 @@ struct tree{
 	vector<tree_point> t;
 	vector<int> sum,row,col;
 	int size=0;
-	
+	void pos(){
+		for(int depth=0;depth<N;depth++){
+		cout<<t[size-1].po[0][0][depth]<<endl;
+	}
+	}
 
 	bool push(tree_point &t1){
 		if(t1.isValid()){
@@ -487,6 +506,16 @@ struct tree{
 		}
 		}
 		}
+		if(s==25 && r1==0 && c1==0){
+		for(int r=0;r<N;r++){                       //find min posibility
+		for(int c=0;c<N;c++){
+		if(t1.grid[r][c]==0){
+			r1=r;
+			c1=c;
+		}
+		}
+		}
+		}
 		row.push_back(r1);
 		col.push_back(c1);
 		sum.push_back(s);
@@ -498,11 +527,10 @@ struct tree{
 		return false;             //can't add new entry 
 	}
 	}
-	bool try_location(){
+	bool forward_march(){
 		if(sum[size-1]>0){
-		cout<<"entered";	
 		tree_point tr1;
-		tr1=t[size-1];
+		tr1=t[size-1];              //last grids and matrix are copied
 		int r=row[size-1];
 		int c=col[size-1];
 		int d=0;
@@ -513,29 +541,46 @@ struct tree{
 				break;
 			}
 		}
-		cout<<"trying to solve"<<endl;
+		//cout<<"trying to solve"<<endl;
 		init(tr1.grid,tr1.po);
 		TryToSolve(tr1.grid,tr1.po);
 		if(tr1.isValid()){
+			if(tr1.isSolved()){
+				cout<<final_check(tr1.grid,tr1.po)<<"I'm  not assure that following sudoku is solved"<<endl;
+				push(tr1);
+				return false;                  //terminating condition
+			}
 			cout<<"go to next "<<endl;
 			push(tr1);
 			return true;
 		}
 		else{
-			cout<<"wrong";
+			cout<<"wrong 000";
 			sum[size-1]--;
 			t[size-1].po[r][c][d]=0;
+			cout<<"still fine"<<sum[size-1]<<endl;
+			return true;
 		}
 		}
 		else{
-			cout<<"wrong";
+			cout<<"wrong go back"<<endl;
 			size--;
-			t.erase(t.end());
-			row.erase(row.end());
-			col.erase(col.end());
-			sum.erase(sum.end());	
+			t.erase(t.end()-1);
+			row.erase(row.end()-1);
+			col.erase(col.end()-1);
+			sum.erase(sum.end()-1);	
+			sum[size-1]--;                                //back marching started
+			for(int depth=0;depth<N;depth++){           
+			    if(t[size-1].po[row[size-1]][col[size-1]][depth]==1){
+			    	t[size-1].po[row[size-1]][col[size-1]][depth]=0;
+			    	break;	
+			    } 
+			}
+			return false;
+			pg();
 		}
 	}
+	
 	void print_info(){
 		cout<<sum[size-1]<<" "<<row[size-1]<< " "<<col[size-1]<<" "<<size<<endl;
 	}
@@ -543,6 +588,8 @@ struct tree{
 		printGrid(t[size-1].grid);
 	}
 };
+
+
 
 
 
@@ -611,12 +658,14 @@ TryToSolve(tp.grid,tp.po);
 t.push(tp);
 cout<<endl;
 
+for(int i=0;i<56;i++){
 do{
 t.print_info();
-bool a=t.try_location();
-cout<<a<<endl;
-}while(t.try_location());
+}while(t.forward_march());
+t.print_info();
 t.pg();	
+}
+cout << "seems it is solved";
 
 
 
