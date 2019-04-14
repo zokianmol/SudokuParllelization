@@ -96,6 +96,7 @@ bool elemination(int grid[N][N],bool po[N][N][N]){         //eleminitaio	n funct
 		}
 		if(a1==1){
 			count=1;
+			cout<<r<<","<<c<<"ele"<<endl;
 			grid[r][c]=flg+1;
 
 		}
@@ -128,6 +129,7 @@ for(int i=0;i<N;i++){
 	}
 	if(a2==1 && grid[flg2][i]==0){        //remove posibility after assignment for column
 		grid[flg2][i]=k+1;
+		cout<<flg2<<","<<i<<endl;
 		for(int ex=0;ex<N;ex++){
 			po[flg2][i][ex]=0;
 		}
@@ -168,7 +170,7 @@ cout<<"closing LR"<<endl;
 return count;
 }
 
-bool twin(int grid[N][N],bool po[N][N][N]){
+bool twin(int grid[N][N],bool po[N][N][N]){       //if twin found it return 1 , finding existing twin also
 bool count=0;	
 for(int r=0;r<N;r++){                             //find twin from row and column
 	vector<int> flg1,flg2,num1,num2;
@@ -375,7 +377,7 @@ return count;
 return false;
 }	*/
 
-int  *find_least_po(int grid[N][N],bool po[N][N][N]){              //returns no of posibility , row, col
+/*int *find_least_po(int grid[N][N],bool po[N][N][N]){              //returns no of posibility , row, col
 static int num[3]={N,0,0};
 for(int r=0;r<N;r++){
 for(int c=0;c<N;c++){
@@ -389,11 +391,13 @@ for(int c=0;c<N;c++){
 		num[2]=c;
 	}
 }
-}
 
+}
 return num;
-}
+}*/
 
+
+//following function include constrain removeing according to initial grid  ,elimination, lone ranger, twin  
 void TryToSolve(int grid[N][N],bool po[N][N][N]){
 int count=0,itr=0;
 do{
@@ -401,11 +405,146 @@ count=0;                            //start counting from each iteration
 RemoveConstrain(grid,po);
 count+=elemination(grid,po);         //return 1 if it is done
 count+=loneR(grid,po);
-count+=twin(grid,po);
+twin(grid,po);
 itr++;
 }while(count!=0);
-cout<<"iterations"<<itr;
+cout<<"iterations"<<itr<<endl;
 }
+
+//tree point contains grid and posibility matrics
+//functions void copy,bool issolved,bool isvalid 
+struct tree_point{
+	int grid[N][N];
+	bool po[N][N][N]; 
+	int sum,r,c;
+	void copy(int g[N][N],bool p[N][N][N]){                 //copy grid and posibility
+		for(int r=0;r<N;r++){
+			for(int c=0;c<N;c++){
+				for(int depth=0;depth<N;depth++){
+					po[r][c][depth]=p[r][c][depth];
+				}
+				grid[r][c]=g[r][c];
+			}
+
+		}
+	}
+	bool isValid(){                //check if solved sudoku is valid (return false if empty cell contain no posibility)
+		bool final=1;
+		for(int r=0;r<N;r++){
+			for(int c=0;c<N;c++){
+				if(grid[r][c]==0){
+					bool valid=0;
+					for(int depth=0;depth<N;depth++){
+						if(po[r][c][depth]!=0){
+							valid=1;
+							break;
+						}
+					}
+					if(valid==0){
+					return valid;
+					}
+					else{
+					final=valid;
+					}
+				}
+			}
+		}
+	}
+	bool isSolved(){
+	if(isValid()){
+		for(int r=0;r<N;r++){
+			for(int c=0;c<N;c++){
+				if(grid[r][c]==0) return false;
+
+			}
+		}
+		return true;
+	}
+	else{
+		return false;
+	}
+	}  
+};
+struct tree{
+	vector<tree_point> t;
+	vector<int> sum,row,col;
+	int size=0;
+	
+
+	bool push(tree_point &t1){
+		if(t1.isValid()){
+		int s=N,r1=0,c1=0;	
+		for(int r=0;r<N;r++){                       //find min posibility
+		for(int c=0;c<N;c++){
+		int local_sum=0;
+		for(int depth=0;depth<N;depth++){
+		local_sum+=t1.po[r][c][depth];
+		}
+		if(local_sum<s && t1.grid[r][c]==0 ){           //find min sum;
+		s=local_sum;
+		r1=r;
+		c1=c;
+		}
+		}
+		}
+		row.push_back(r1);
+		col.push_back(c1);
+		sum.push_back(s);
+		t.push_back(t1);
+		size++;
+		return true;          //successfully new entry added
+	}
+	else{
+		return false;             //can't add new entry 
+	}
+	}
+	bool try_location(){
+		if(sum[size-1]>0){
+		cout<<"entered";	
+		tree_point tr1;
+		tr1=t[size-1];
+		int r=row[size-1];
+		int c=col[size-1];
+		int d=0;
+			for(int depth=0;depth<N;depth++){
+			if(tr1.po[r][c][depth]==1){
+				d=depth;
+				tr1.grid[r][c]=depth+1;
+				break;
+			}
+		}
+		cout<<"trying to solve"<<endl;
+		init(tr1.grid,tr1.po);
+		TryToSolve(tr1.grid,tr1.po);
+		if(tr1.isValid()){
+			cout<<"go to next "<<endl;
+			push(tr1);
+			return true;
+		}
+		else{
+			cout<<"wrong";
+			sum[size-1]--;
+			t[size-1].po[r][c][d]=0;
+		}
+		}
+		else{
+			cout<<"wrong";
+			size--;
+			t.erase(t.end());
+			row.erase(row.end());
+			col.erase(col.end());
+			sum.erase(sum.end());	
+		}
+	}
+	void print_info(){
+		cout<<sum[size-1]<<" "<<row[size-1]<< " "<<col[size-1]<<" "<<size<<endl;
+	}
+	void pg(){
+		printGrid(t[size-1].grid);
+	}
+};
+
+
 
 int main(){
 /*int grid[N][N] = {{3, 0, 6, 5, 0, 8, 4, 0, 0}, 
@@ -464,8 +603,20 @@ int grid[N][N] =     {{10,22,14,0,0,0,0,13,0,18,0,20,25,0,0,0,21,0,1,0,0,0,0,12,
 printGrid(grid);
 bool po[N][N][N];
 init(grid,po);
+tree_point tp;
+tree t;
+tp.copy(grid,po);
+TryToSolve(tp.grid,tp.po);
+//int *minpos=find_least_po(tp.grid,tp.po);
+t.push(tp);
+cout<<endl;
 
-TryToSolve(grid,po);
+do{
+t.print_info();
+bool a=t.try_location();
+cout<<a<<endl;
+}while(t.try_location());
+t.pg();	
 
 
 
