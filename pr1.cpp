@@ -2,8 +2,8 @@
 #include <vector>
 #include <omp.h>
 using namespace std;
-#define N 25
-#define n 5
+#define N 16
+#define n 4
 
 void init(int grid[N][N],bool po[N][N][N]){
 	for(int r=0;r<N;r++){                         //initialization of posibility matrix 
@@ -170,24 +170,20 @@ for(int br=0;br<N;br+=n){                     //box lone ranger check
 return count;
 }
 
-bool twin(int grid[N][N],bool po[N][N][N]){       //if twin found it return 1 , finding existing twin also
+bool twinRow(int grid[N][N],bool po[N][N][N]){       //if twin found it return 1 , finding existing twin also
 bool count=0;	
 for(int r=0;r<N;r++){                             //find twin from row and column
-	vector<int> flg1,flg2,num1,num2;
+	vector<int> flg1,num1;
 	for(int n1=0;n1<N;n1++){
 		int a1=0;
 		int b1=0;
 		for(int c=0;c<N;c++){
 			a1+=po[r][c][n1];
-			b1+=po[c][r][n1];
 		}
 		if(a1==2){
 		num1.push_back(n1);                    //find twin number in row
 		}
-    	if(b1==2){
-		num2.push_back(n1);                     //find twin number in column
-	    }
-	}
+   	}
 	
 	if(num1.size()>=2){                        //if twin vector contain more than two
 	bool twin=1,brk=0;	                          //assume there is two twin numbers
@@ -195,11 +191,12 @@ for(int r=0;r<N;r++){                             //find twin from row and colum
 	for(vector<int>::iterator l=k+1;l!=num1.end();l++){                          //on second twin number =>l
 	for(int c=0;c<N;c++){
 		if(po[r][c][*k]!=po[r][c][*l]){                   //check posibility matrix rows of two twin numbers
-			twin=0;                                   //twin not found flag
+			twin=0;  			                                 //twin not found flag
 			break;
 		}
 	}
-	if(twin==1){                       //if twin found
+	
+	if(twin==1){  	                    //if twin found
 		for(int c=0;c<N;c++){                    
 			if(po[r][c][*k]==1){
 				flg1.push_back(c);                   //find location of twin 
@@ -229,54 +226,76 @@ for(int r=0;r<N;r++){                             //find twin from row and colum
 	}	
 	}
 	}
+	flg1.clear();
+    num1.clear();
+}
+return count;
+}
 
-	if(num2.size()>=2){                                 //colum twin find
-	bool twin=1,brk=0;	
-	for(vector<int>::iterator k=num2.begin();k!=num2.end()-1;k++)	{
-	for(vector<int>::iterator l=k+1;l!=num2.end();l++){
-	for(int c=0;c<N;c++){
-		if(po[c][r][*k]!=po[c][r][*l]){
-			twin=0;
+bool twinCol(int grid[N][N],bool po[N][N][N]){       //if twin found it return 1 , finding existing twin also
+bool count=0;	
+for(int c=0;c<N;c++){                             //find twin from row and column
+	vector<int> flg1,num1;
+	for(int n1=0;n1<N;n1++){
+		int a1=0;
+		int b1=0;
+		for(int r=0;r<N;r++){
+			a1+=po[r][c][n1];
+		}
+		if(a1==2){
+		num1.push_back(n1);                    //find twin number in row
+		}
+   	}
+	
+	if(num1.size()>=2){                        //if twin vector contain more than two
+	bool twin=1,brk=0;	                          //assume there is two twin numbers
+	for(vector<int>::iterator k=num1.begin();k!=num1.end()-1;k++){             //on first twin number =>k
+	for(vector<int>::iterator l=k+1;l!=num1.end();l++){                          //on second twin number =>l
+	for(int r=0;r<N;r++){
+		if(po[r][c][*k]!=po[r][c][*l]){                   //check posibility matrix rows of two twin numbers
+			twin=0;  			                                 //twin not found flag
 			break;
 		}
 	}
-	if(twin==1){
-		for(int c=0;c<N;c++){
-			if(po[c][r][*k]==1){
-				flg2.push_back(c);
+	
+	if(twin==1){  	                    //if twin found
+		for(int r=0;r<N;r++){                    
+			if(po[r][c][*k]==1){
+				flg1.push_back(r);                   //find location of twin 
 				//cout<<"twin";
 				count=1;
 			}
 		}
-		for(int depth=0;depth<N;depth++){
-			po[flg2[0]][r][depth]=0;
-			po[flg2[1]][r][depth]=0;
+		for(int depth=0;depth<N;depth++){               //remove from posibility list
+			po[flg1[0]][c][depth]=0;
+			po[flg1[1]][c][depth]=0;
 
 		}
-		po[flg2[0]][r][*k]=1;
-		po[flg2[0]][r][*l]=1;
-		po[flg2[1]][r][*k]=1;
-		po[flg2[1]][r][*l]=1;
-
+		po[flg1[0]][c][*k]=1;                             //add single posibility
+		po[flg1[0]][c][*l]=1;
+		po[flg1[1]][c][*k]=1;
+		po[flg1[1]][c][*l]=1;
 		brk=1;
 		break;
 	}
 	else{
 		twin=1;
 	}
-	
+
 	}
 	if(brk==1){
 		break;
 	}	
 	}
 	}
-    flg1.clear();
-    flg2.clear();
+	flg1.clear();
     num1.clear();
-    num2.clear();
 }
+return count;
+}
+	
 
+bool twinBox(int gird[N][N],bool po[N][N][N]){
 for(int br=0;br<N;br+=n){                     //box twin check         
 	for(int bc=0;bc<N;bc+=n){
 		vector<int> num1,flg1,flg2;
@@ -312,8 +331,7 @@ for(int br=0;br<N;br+=n){                     //box twin check
 						if(po[br+r][bc+c][*k]==1){
 							flg1.push_back(r);
 							flg2.push_back(c);
-							//cout<<"twin"<<endl;
-							count=1;
+							
 						}
 					}
 				}
@@ -340,8 +358,8 @@ for(int br=0;br<N;br+=n){                     //box twin check
 		}
 	}
 }
-return count;
 }
+
 bool final_check(int grid[N][N],bool po[N][N][N]){
 for(int r=0;r<N;r++){                       //find min posibility
 	for(int c=0;c<N;c++){
@@ -420,10 +438,12 @@ count=0;                            //start counting from each iteration
 RemoveConstrain(grid,po);
 count+=elemination(grid,po);         //return 1 if it is done
 count+=loneR(grid,po);
-twin(grid,po);
+twinRow(grid,po);
+twinCol(grid,po);
+twinBox(grid,po);
 itr++;
 }while(count!=0);
-cout<<"iterations"<<itr<<endl;
+cout<<"iterations : "<<itr<<endl;
 }
 
 //tree point contains grid and posibility matrics
@@ -499,15 +519,16 @@ struct tree{
 		for(int depth=0;depth<N;depth++){
 		local_sum+=t1.po[r][c][depth];
 		}
-		if(local_sum<s && t1.grid[r][c]==0 ){           //find min sum;
+		if(local_sum<=s && t1.grid[r][c]==0 ){           //find min sum;
 		s=local_sum;
 		r1=r;
 		c1=c;
 		}
 		}
 		}
-		if(s==25 && r1==0 && c1==0){
-		for(int r=0;r<N;r++){                       //find min posibility
+		/*if(s==25 && r1==0 && c1==0){
+		cout<<"something here?????????????????"<<endl;
+		for(int r=0;r<N;r++){                       
 		for(int c=0;c<N;c++){
 		if(t1.grid[r][c]==0){
 			r1=r;
@@ -515,7 +536,7 @@ struct tree{
 		}
 		}
 		}
-		}
+		}*/
 		row.push_back(r1);
 		col.push_back(c1);
 		sum.push_back(s);
@@ -576,7 +597,7 @@ struct tree{
 			    	break;	
 			    } 
 			}
-			return false;
+			return true;
 			pg();
 		}
 	}
@@ -603,21 +624,17 @@ int main(){
 					{1, 3, 0, 0, 0, 0, 2, 5, 0}, 
 					{0, 0, 0, 0, 0, 0, 0, 7, 4}, 
 					{0, 0, 5, 2, 0, 6, 3, 0, 0}}; */
-int grid[N][N] =     {{10,22,14,0,0,0,0,13,0,18,0,20,25,0,0,0,21,0,1,0,0,0,0,12,0 },
-{0,0,0,12,0,17,15,1,25,10,0,3,13,0,7,0,0,16,0,0,11,18,24,4,0 },
-{0,0,0,0,0,0,0,0,0,0,24,12,0,0,0,0,0,0,2,0,10,25,6,1,0 },
-{0,0,0,9,0,0,0,23,0,5,0,0,19,0,0,0,0,12,0,0,17,0,20,0,0 },
-{0,0,5,0,16,12,6,20,8,0,0,0,0,0,0,10,0,0,0,0,0,2,19,0,0 },
-{5,0,0,20,0,0,0,9,14,6,0,0,0,0,17,1,0,0,0,0,0,23,16,11,0 },
-{24,0,16,0,0,0,0,19,15,0,0,5,18,1,0,8,0,25,6,0,0,0,12,0,0 },
-{0,0,12,14,0,0,0,0,17,0,0,0,0,24,20,13,0,0,3,0,0,0,0,0,4 },
-{0,18,19,13,0,0,0,10,0,3,2,0,9,6,0,16,0,23,0,21,0,0,0,24,0 },
-{0,0,1,6,9,0,24,0,0,12,0,16,22,0,0,20,19,0,17,0,0,0,2,0,0 },
+/*int grid[N][N] = {
 {0,0,0,0,0,0,0,21,0,0,0,24,0,3,13,18,11,17,0,0,0,0,22,0,1 },
 {0,0,0,0,0,0,0,0,0,9,0,0,8,0,1,0,0,0,0,0,0,24,0,7,0 },
 {0,0,0,0,12,18,0,0,0,0,0,0,0,14,2,21,8,0,13,1,19,0,9,0,0 },
 {0,14,0,0,0,15,3,4,7,0,5,0,0,0,0,0,6,0,0,22,8,0,21,0,2 },
 {0,16,3,0,25,0,0,0,0,1,0,0,12,9,21,0,2,15,7,20,0,0,0,0,0 },
+{5,0,0,20,0,0,0,9,14,6,0,0,0,0,17,1,0,0,0,0,0,23,16,11,0 },
+{24,0,16,0,0,0,0,19,15,0,0,5,18,1,0,8,0,25,6,0,0,0,12,0,0 },
+{0,0,12,14,0,0,0,0,17,0,0,0,0,24,20,13,0,0,3,0,0,0,0,0,4 },
+{0,18,19,13,0,0,0,10,0,3,2,0,9,6,0,16,0,23,0,21,0,0,0,24,0 },
+{0,0,1,6,9,0,24,0,0,12,0,16,22,0,0,20,19,0,17,0,0,0,2,0,0 },
 {0,0,0,0,0,23,0,0,0,15,0,0,0,16,0,7,14,0,0,0,3,0,13,0,0 },
 {0,0,0,4,7,9,0,14,0,0,0,1,0,8,0,0,0,0,24,0,6,22,0,0,0 },
 {0,5,0,1,6,0,0,12,11,0,0,25,14,0,0,0,0,13,0,19,24,0,0,0,0 },
@@ -627,8 +644,13 @@ int grid[N][N] =     {{10,22,14,0,0,0,0,13,0,18,0,20,25,0,0,0,21,0,1,0,0,0,0,12,
 {14,20,0,7,22,0,16,5,12,0,0,0,21,23,25,4,0,1,0,0,0,0,3,0,0 },
 {0,1,0,15,0,20,0,0,4,0,8,0,0,0,0,0,0,0,0,16,14,12,17,19,24 },
 {0,0,0,25,0,0,0,0,0,7,0,0,3,0,22,14,0,0,0,0,0,0,10,0,0 },
-{3,0,0,0,5,14,25,15,18,13,0,7,0,17,0,0,20,0,22,0,0,11,0,0,0 }};
- /*int grid[N][N] = {{0,15,0,1,0,2,10,14,12,0,0,0,0,0,0,0},
+{3,0,0,0,5,14,25,15,18,13,0,7,0,17,0,0,20,0,22,0,0,11,0,0,0 },
+{10,22,14,0,0,0,0,13,0,18,0,20,25,0,0,0,21,0,1,0,0,0,0,12,0 },
+{0,0,0,12,0,17,15,1,25,10,0,3,13,0,7,0,0,16,0,0,11,18,24,4,0 },
+{0,0,0,0,0,0,0,0,0,0,24,12,0,0,0,0,0,0,2,0,10,25,6,1,0 },
+{0,0,0,9,0,0,0,23,0,5,0,0,19,0,0,0,0,12,0,0,17,0,20,0,0 },
+{0,0,5,0,16,12,6,20,8,0,0,0,0,0,0,10,0,0,0,0,0,2,19,0,0 }};*/
+ int grid[N][N] = {{0,15,0,1,0,2,10,14,12,0,0,0,0,0,0,0},
                       {0,6,3,16,12,0,8,4,14,15,1,0,2,0,0,0},
                       {14,0,9,7,11,3,15,0,0,0,0,0,0,0,0,0},
                       {4,13,2,12,0,0,0,0,6,0,0,0,0,15,0,0},
@@ -643,7 +665,7 @@ int grid[N][N] =     {{10,22,14,0,0,0,0,13,0,18,0,20,25,0,0,0,21,0,1,0,0,0,0,12,
                       {12,8,0,0,16,0,0,10,0,13,0,0,0,5,0,0},
                       {5,0,0,0,3,0,4,6,0,1,15,0,0,0,0,0},
                       {0,9,1,6,0,14,0,11,0,0,2,0,0,0,10,8},
-                      {0,14,0,0,0,13,9,0,4,12,11,8,0,0,2,0}};*/
+                      {0,14,0,0,0,13,9,0,4,12,11,8,0,0,2,0}};
 
 
 //vector<vector<vector<bool>>> po(N,vector<vector<bool>>(N,vector<bool>(N,1)));
@@ -658,14 +680,13 @@ TryToSolve(tp.grid,tp.po);
 t.push(tp);
 cout<<endl;
 
-for(int i=0;i<56;i++){
 do{
 t.print_info();
 }while(t.forward_march());
 t.print_info();
 t.pg();	
-}
-cout << "seems it is solved";
+
+cout << "seems it is solved,,, there is some fault somwhere when first element of grid is zero";
 
 
 
