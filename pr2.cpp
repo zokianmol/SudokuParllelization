@@ -457,7 +457,6 @@ for(int r=0;r<N;r++){                       //find min posibility
 
 		}
 		if(s!=1){
-			cout<<"at"<<r<<","<<c<<"fault"<<endl;
 			return false;
 		}
 	}
@@ -693,7 +692,7 @@ struct tree{
 		TryToSolve(tr1.grid,tr1.po);
 		if(tr1.isValid()){
 			if(tr1.isSolved()){
-				cout<<final_check(tr1.grid,tr1.po)<<"I'm  not assure that following sudoku is solved"<<endl;
+				cout<<final_check(tr1.grid,tr1.po)<<"final sudoku"<<endl;
 				push(tr1);
 				return false;                  //terminating condition
 			}
@@ -846,9 +845,9 @@ if(id==0){
 {0,0,0,12,0,17,15,1,25,10,0,3,13,0,7,0,0,16,0,0,11,18,24,4,0 },
 {0,0,0,0,0,0,0,0,0,0,24,12,0,0,0,0,0,0,2,0,10,25,6,1,0 },
 {0,0,0,9,0,0,0,23,0,5,0,0,19,0,0,0,0,12,0,0,17,0,20,0,0 },
-{0,0,5,0,16,12,6,20,8,0,0,0,0,0,0,10,0,0,0,0,0,2,19,0,0 }};
+{0,0,5,0,16,12,6,20,8,0,0,0,0,0,0,10,0,0,0,0,0,2,19,0,0 }};*/
 
-   /*  int grid[N][N]={{0,9,0,0,0,0,0,0,0,13,7,0,3,0,0,0},
+    /* int grid[N][N]={{0,9,0,0,0,0,0,0,0,13,7,0,3,0,0,0},
             {0,0,2,0,11,6,3,4,0,9,0,0,0,8,10,15},
             {0,16,0,10,0,0,12,0,0,4,0,3,6,0,13,0},
             {0,0,6,8,2,16,0,0,0,10,5,0,0,1,7,9},
@@ -863,9 +862,9 @@ if(id==0){
             {4,11,0,5,0,0,0,0,1,14,3,10,2,13,15,0},
             {13,0,0,0,0,0,0,2,0,11,0,0,12,7,0,6},
             {0,0,0,0,7,1,0,11,0,0,0,13,0,3,4,8},
-            {8,0,3,12,0,14,0,13,4,5,6,7,11,0,0,0}};*/
+            {8,0,3,12,0,14,0,13,4,5,6,7,11,0,0,0}};
 
-/*int grid[N][N]={{10,22,14,8,15,11,2,13,19,18,9,20,25,4,6,17,21,3,1,24,16,5,7,12,23},
+/*int grid[N][N]={{10,22,14,8,15,11,2,13,19,18,9,20,25,4,6,17,21,3,1,24,16,5,7,12,23},   //solved 25x25 grid
 {20,6,21,12,23,17,15,1,25,10,14,3,13,2,7,5,9,16,19,8,11,18,24,4,22},
 {13,17,4,19,3,16,14,7,9,21,24,12,23,5,8,11,22,20,2,18,10,25,6,1,15},
 {18,7,25,9,2,24,22,23,3,5,1,10,19,11,16,15,13,12,4,6,17,8,20,14,21},
@@ -897,7 +896,7 @@ for(int t=0;t<empty;t++){
 }*/
 
 int grid[N][N] = {
-{0,0,6,0,7,0,0,0,15,0,0,0,0,0,5,9},
+{0,0,6,14,7,0,0,0,15,0,0,0,0,0,5,9},
 {0,0,3,0,0,6,0,14,0,0,0,1,0,2,0,0},
 {0,13,0,0,10,0,0,15,0,0,6,11,0,0,0,1},
 {0,2,0,15,0,12,16,0,0,9,4,0,0,0,0,7},
@@ -924,13 +923,10 @@ init(grid,po);
 tree_point tp;
 tree t;
 
-//TryToSolve(tp.grid,tp.po);
 init(grid,po);
 RemoveConstrain(grid,po);
-//int *minpos=find_least_po(tp.grid,tp.po);
 tp.copy(grid,po);
 t.push(tp);
-cout<<"here";
 cout<<endl;
 
 t.print_info();
@@ -940,34 +936,12 @@ do{
 //system("clear");	
 
 t.forward_march();
-
-
-
-
-t.print_info();
-//cout<<"wait"<<flush;
 //t.print_info();
+
+//t.print_info2();
 
 }while(t.forward_march());
 
-/*for(int i=0;i<100;i++){
-	t.forward_march();
-	t.pos();
-	t.print_info();
-}*/
-//t.print_info();
+
 t.pg();	
-
-cout << "seems it is solved,,, there is some fault somwhere when first element of grid is zero";
-
-
-
-/*int *a=grid[0];                     //pointer stuff
-printGrid(grid); 
-cout<<count<<" "<<itr<<endl;
-cout<<grid+1<<endl<<grid<<endl;
-cout<<a+1<<endl;
-for(int i=0;i<N;i++){cout<<a+i<<endl;}*/
-
-
 } 
